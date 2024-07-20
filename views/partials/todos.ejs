@@ -9,9 +9,7 @@
         <span><%= todo.text %></span>
         <div class="actions">
             <form action="/complete/<%= todo.id %>" method="POST">
-                <button type="submit">
-                    <%= todo.completed ? 'Mark Incomplete' : 'Mark Complete' %>
-                </button>
+                <button type="submit"><%= todo.completed ? 'Mark Incomplete' : 'Mark Complete' %></button>
             </form>
             <form action="/delete/<%= todo.id %>" method="POST">
                 <button type="submit">Delete</button>
