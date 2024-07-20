@@ -1,0 +1,22 @@
+<h2>Todos</h2>
+<form action="/add" method="POST">
+    <input type="text" name="newTodo" placeholder="Add a new todo" />
+    <button type="submit">Add</button>
+</form>
+<ul>
+    <% todos.forEach(todo => { %>
+    <li class="todo-item <%= todo.completed ? 'completed' : '' %>">
+        <span><%= todo.text %></span>
+        <div class="actions">
+            <form action="/complete/<%= todo.id %>" method="POST">
+                <button type="submit">
+                    <%= todo.completed ? 'Mark Incomplete' : 'Mark Complete' %>
+                </button>
+            </form>
+            <form action="/delete/<%= todo.id %>" method="POST">
+                <button type="submit">Delete</button>
+            </form>
+        </div>
+    </li>
+    <% }) %>
+</ul>
