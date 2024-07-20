@@ -2,7 +2,8 @@
 body {
     font-family: sans-serif;
     margin: 0;
-    background: rgba(16, 28, 2, 0.468);
+    /* background: rgba(16, 28, 2, 0.468); */
+    background: linear-gradient(135deg, rgba(16, 28, 2, 0.468), rgba(24, 48, 4, 0.468));
 }
 
 header {
@@ -19,7 +20,12 @@ h1 {
     font-family: 'Eternal Ui Regular';
     letter-spacing: 2px;
     font-size: 50px;
-    color: rgb(85, 137, 7);
+    /* color: rgb(85, 137, 7); */
+
+    background: linear-gradient(45deg, #000000, #0b3d00, #005700, #4caf50, #8bc34a);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
 }
 h2 {
     font-family: 'Eternal Ui Regular';
@@ -42,6 +48,9 @@ form input[type='text'] {
 }
 
 form button {
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    font-weight: 600;
+    text-transform: uppercase;
     padding: 10px 15px;
     background-color: #4caf50; /* Green */
     color: white;
@@ -61,10 +70,11 @@ ul {
 }
 
 .todo-item {
+    height: 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px;
+    padding: 20px;
     border-bottom: 1px solid #ddd;
     cursor: pointer;
 }
@@ -81,10 +91,16 @@ ul {
 
 .actions {
     display: flex;
-    gap: 5px;
+    gap: 8px;
+}
+.actions form {
+    height: 100%;
+    margin-bottom: 0;
 }
 
 .actions button {
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    font-weight: 600;
     padding: 5px 10px;
     border: none;
     background-color: #2c84c3fe;
