@@ -9,20 +9,20 @@ const todoRouter = require('./routes/todo-route')
 const app = express()
 app.use(cors())
 
-//
-const { PORT, NODE_ENV, MONGODB_URI } = process.env
+//extract env variables
+const { PORT, NODE_ENV, MONGODB_URI, MONGO_LOCAL } = process.env
 const port = PORT || 3000
 let mongoURI = null
 // Connect to MongoDB (replace with your connection string)
-if (process.env.NODE_ENV === 'development') {
-    mongoURI = 'mongodb://localhost:27017/todo-app'
+if (NODE_ENV === 'development') {
+    mongoURI = MONGO_LOCAL
 } else {
-    mongoURI = process.env.MONGODB_URI
+    mongoURI = MONGODB_URI
 }
 
 mongoose
     .connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => console.log('Connected to MongoDB'))
+    .then(() => console.log(`Connected to MongoDB - Connection string :  ${mongoURI}`))
     .catch((err) => console.error('Error connecting to MongoDB:', err))
 
 // Middleware
@@ -47,5 +47,5 @@ app.get('/', async (req, res) => {
 })
 
 app.listen(port, () => {
-    console.log(`Server listening on port ${port}`)
+    console.log(`Server listening on port ${port} - in ${NODE_ENV} environnement`)
 })
