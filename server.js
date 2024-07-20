@@ -1,4 +1,4 @@
-require('dotenv').config() // Load environment variables from .env file
+require('dotenv-flow').config() // Load environment variables from .env file
 const express = require('express')
 const cors = require('cors')
 
@@ -11,7 +11,7 @@ app.use(cors())
 
 //extract env variables
 const { PORT, NODE_ENV, MONGODB_URI, MONGO_LOCAL } = process.env
-const port = PORT || 3000
+const port = PORT
 let mongoURI = null
 // Connect to MongoDB (replace with your connection string)
 if (NODE_ENV === 'development') {
@@ -24,7 +24,7 @@ mongoose
     .connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => console.log(`Connected to MongoDB - Connection string :  ${mongoURI}`))
     .catch((err) => console.error('Error connecting to MongoDB:', err))
-
+MONGO_LOCAL
 // Middleware
 app.set('view engine', 'ejs')
 app.use(express.urlencoded({ extended: false }))
