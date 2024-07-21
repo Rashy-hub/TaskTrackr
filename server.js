@@ -5,7 +5,10 @@ const cors = require('cors')
 const path = require('path')
 const mongoose = require('mongoose')
 const todoRouter = require('./routes/todo-route')
-
+const authRouter = require('./routes/auth-route')
+const logRequest = require('./middleware/request-logger')
+const { registratedRoutes, extractRoutes } = require('./middleware/registratedRoutes')
+const Todo = require('./models/todo')
 const app = express()
 app.use(cors())
 
@@ -21,22 +24,22 @@ if (NODE_ENV === 'development') {
 }
 
 mongoose
-    .connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
+    .connect(mongoURI)
     .then(() => console.log(`Connected to MongoDB - Connection string :  ${mongoURI}`))
     .catch((err) => console.error('Error connecting to MongoDB:', err))
 MONGO_LOCAL
 // Middleware
 app.set('view engine', 'ejs')
+app.use(logRequest)
 app.use(express.urlencoded({ extended: false }))
 app.use(express.static(path.join(__dirname, 'public'))) // Serve static assets from public folder
 
 // Routes
-app.use('/', todoRouter) // Use the todoRouter for all routes starting with '/'
-// Inside server.js, after defining the todoRouter
+//router.use('/todo', todoRouter)
+//router.use('/auth', authRouter)
+//app.use('/', router)
 
-// Inside server.js, modify the route handler (e.g., for the GET / route)
-
-app.get('/', async (req, res) => {
+app.get('/todo', async (req, res) => {
     try {
         const todos = await Todo.find()
         res.render('layouts/main', { todos }) // Render only the todo list partial
@@ -44,6 +47,25 @@ app.get('/', async (req, res) => {
         console.error(err)
         res.status(500).send('Error retrieving todos')
     }
+})
+app.get('/', async (req, res) => {
+    res.redirect('/todo')
+})
+
+//those routes will  be displayed in public when 404 error
+registratedRoutes.push(todoRouter)
+registratedRoutes.push(authRouter)
+
+app.use('/', ...registratedRoutes)
+
+app.use('*', extractRoutes, (req, res) => {
+    const errorMessage = 'Page not found. Available routes:'
+    const responseBody = {
+        error: errorMessage,
+        availableRoutes: req.extractedPaths,
+    }
+
+    res.status(404).json(responseBody)
 })
 
 app.listen(port, () => {

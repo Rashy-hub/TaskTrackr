@@ -1,12 +1,12 @@
 const express = require('express')
 const todoController = require('../controllers/todo-controller')
 
-const router = express.Router()
+const todoRouter = express.Router()
 
-router.get('/', todoController.getTodos)
-router.post('/add', todoController.addTodo)
-router.post('/complete/:id', todoController.completeTodo)
-router.post('/delete/:id', todoController.deleteTodo)
-router.get('/clear', todoController.clearTodo)
+todoRouter.get('/todo', todoController.getTodos)
+todoRouter.post('/todo/add', todoController.addTodo)
+todoRouter.post('/todo/complete/:id', todoController.completeTodo)
+todoRouter.post('/todo/delete/:id', todoController.deleteTodo)
+todoRouter.get('/todo/clear', todoController.clearTodo)
 
-module.exports = router
+module.exports = todoRouter

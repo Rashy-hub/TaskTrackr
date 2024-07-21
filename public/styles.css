@@ -5,13 +5,64 @@ body {
     /* background: rgba(16, 28, 2, 0.468); */
     background: linear-gradient(135deg, rgba(16, 28, 2, 0.468), rgba(24, 48, 4, 0.468));
 }
-
 header {
     text-align: center;
-    padding: 20px;
+    padding: 0px;
     border-bottom: 2px solid #ddd;
 }
 
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: auto;
+    padding: 10px 20px;
+    width: 900px;
+}
+
+.logo a {
+    text-decoration: none;
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #fff;
+}
+
+.title {
+    text-align: center;
+    font-family: 'Eternal Ui Regular';
+    letter-spacing: 2px;
+    font-size: 50px;
+    /* color: rgb(85, 137, 7); */
+
+    background: linear-gradient(45deg, #000000, #0b3d00, #005700, #4caf50, #59832a);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+}
+
+.auth-buttons .button {
+    text-decoration: none;
+    color: #4caf50;
+    background-color: #fff;
+    padding: 10px 20px;
+    border: 2px solid #fff;
+    border-radius: 5px;
+    margin-left: 15px;
+    font-size: 1em;
+    font-weight: bold;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.auth-buttons .button:hover {
+    background-color: #fff;
+    color: #4caf50;
+    border: 2px solid #4caf50;
+}
+
+.auth-buttons .button:active {
+    background-color: #4caf50;
+    color: #fff;
+}
 main {
     display: flex;
     flex-direction: column;
@@ -21,17 +72,7 @@ main {
     margin: 0 auto;
     gap: 1rem;
 }
-h1 {
-    font-family: 'Eternal Ui Regular';
-    letter-spacing: 2px;
-    font-size: 50px;
-    /* color: rgb(85, 137, 7); */
 
-    background: linear-gradient(45deg, #000000, #0b3d00, #005700, #4caf50, #8bc34a);
-    background-clip: text;
-    -webkit-background-clip: text;
-    color: transparent;
-}
 h2 {
     text-align: center;
     width: 100%;
