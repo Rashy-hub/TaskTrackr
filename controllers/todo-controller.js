@@ -56,3 +56,13 @@ exports.deleteTodo = async (req, res) => {
         res.status(500).send('Error deleting todo')
     }
 }
+
+exports.clearTodo = async (req, res) => {
+    try {
+        await Todo.deleteMany({})
+        res.redirect('/')
+    } catch (err) {
+        console.error(err)
+        res.status(500).send('Error deleting todo')
+    }
+}
