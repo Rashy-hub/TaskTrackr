@@ -1,16 +1,18 @@
 require('dotenv-flow').config() // Load environment variables from .env file
+const Todo = require('./models/todo')
 const express = require('express')
 const cors = require('cors')
-
 const path = require('path')
 const mongoose = require('mongoose')
 const todoRouter = require('./routes/todo-route')
 const authRouter = require('./routes/auth-route')
 const logRequest = require('./middleware/request-logger')
 const { registratedRoutes, extractRoutes } = require('./middleware/registratedRoutes')
-const Todo = require('./models/todo')
+
 const app = express()
 app.use(cors())
+app.use(express.urlencoded({ extended: true }))
+app.use(express.json()) // To parse the incoming requests with JSON payloads
 
 //extract env variables
 const { PORT, NODE_ENV, MONGODB_URI, MONGO_LOCAL } = process.env

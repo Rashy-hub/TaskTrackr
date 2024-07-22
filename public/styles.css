@@ -276,3 +276,38 @@ label {
     background-color: #6c757d;
     color: white;
 }
+/*Info modal here*/
+dialog {
+    width: 300px;
+    border: none;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.dialog-header h2 {
+    margin: 0;
+    font-size: 1.5em;
+}
+
+.dialog-body p {
+    margin: 15px 0;
+}
+
+.dialog-footer {
+    margin-top: 20px;
+}
+
+#dialog-ok-button {
+    font-size: 1.2em;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#dialog-ok-button:hover {
+    background-color: #0056b3;
+}

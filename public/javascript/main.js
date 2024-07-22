@@ -11,6 +11,28 @@ const checkboxlistener = (event) => {
         console.warn('Checkbox not found within a .todo-complete-form element.')
     }
 }
+const infoDialogHandler = (jsonResponse) => {
+    const { title, message } = jsonResponse
+    const dialog = document.getElementById('dialog-box')
+    const dialogOkButton = document.getElementById('dialog-ok-button')
+    const dialogHeader = document.querySelector('.dialog-header h2')
+    const dialogBody = document.querySelector('.dialog-body p')
+    console.log(`${JSON.stringify(title)} and ${JONSmessage} has been received`)
+    dialogHeader.textContent = title
+    dialogBody.textContent = message
+    // Show the dialog
+    dialog.showModal()
+
+    /*   // Auto close the dialog after 3 seconds
+    setTimeout(() => {
+        dialog.close()
+    }, 300 0)*/
+
+    // Close the dialog when the OK button is clicked
+    dialogOkButton.addEventListener('click', () => {
+        dialog.close()
+    })
+}
 
 const modalHandler = () => {
     const registerModal = document.getElementById('registerModal')
@@ -42,19 +64,26 @@ const modalHandler = () => {
         }
 
         try {
+            // console.log(JSON.stringify(data))
             const response = await fetch('/auth/register', {
                 method: 'POST',
                 headers: {
+                    Accept: 'text/html',
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(data),
             })
-
+            console.log(JSON.stringify(response))
             if (response.ok) {
                 console.log('Registration successful!')
                 registerModal.close()
+                let jsonResponse = await response.json()
+                console.log(jsonResponse)
+                infoDialogHandler(jsonResponse)
             } else {
                 console.error('Registration failed')
+                // Afficher l'erreur pour l'utilisateur
+                //
             }
         } catch (error) {
             console.error('Error:', error)
