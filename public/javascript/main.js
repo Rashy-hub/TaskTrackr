@@ -12,10 +12,62 @@ const checkboxlistener = (event) => {
     }
 }
 
+const modalHandler = () => {
+    const registerModal = document.getElementById('registerModal')
+    const openModalBtn = document.querySelector('.registerButtonModal')
+    const closeModalBtn = document.getElementById('closeModalBtn')
+    const cancelBtn = document.getElementById('cancelBtn')
+    const registerForm = document.getElementById('registerForm')
+
+    openModalBtn.addEventListener('click', () => {
+        registerModal.showModal()
+    })
+
+    closeModalBtn.addEventListener('click', () => {
+        registerModal.close()
+    })
+
+    cancelBtn.addEventListener('click', () => {
+        registerModal.close()
+    })
+
+    registerForm.addEventListener('submit', async (event) => {
+        event.preventDefault()
+
+        const formData = new FormData(registerForm)
+        const data = {
+            username: formData.get('username'),
+            email: formData.get('email'),
+            password: formData.get('password'),
+        }
+
+        try {
+            const response = await fetch('/auth/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            })
+
+            if (response.ok) {
+                console.log('Registration successful!')
+                registerModal.close()
+            } else {
+                console.error('Registration failed')
+            }
+        } catch (error) {
+            console.error('Error:', error)
+        }
+    })
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     const checkboxes = document.querySelectorAll('.iscomplete')
 
     checkboxes.forEach((checkbox) => {
         checkbox.addEventListener('change', checkboxlistener)
     })
+
+    modalHandler()
 })
