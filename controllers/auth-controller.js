@@ -26,18 +26,16 @@ const authController = {
         })
         console.log(token)
         //save data
-        await newuser.save(function (err) {
-            if (err) {
-                return res.status(422).json(new ErrorResponse('Bad credential ' + err, 422))
-            }
+        try {
+            const savedUser = await newuser.save()
+            token.id = savedUser._id
+            console.log('test ' + savedUser._id)
 
-            token.id = newuser._id
-            console.log('test ' + newuser._id)
-            // Envoi du token
-            res.json(token)
-            console.log(username + ' has been registred in database')
-            // saved!
-        })
+            console.log(username + ' has been registered in database')
+            res.json({ title: 'Registration', message: `${username} has correctly been registered in database \n token:${token.id}` })
+        } catch (err) {
+            return res.status(422).json(new ErrorResponse('Bad credential ' + err, 422))
+        }
 
         // déja preparer une gallerie favorie
     },
