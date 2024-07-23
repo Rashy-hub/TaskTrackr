@@ -9,7 +9,10 @@
     </head>
     <body>
         <%- include('../partials/header') %>
-        <main><%- include('../partials/todos', {todos}) %> <%- include('../partials/register', {todos}) %> <%- include('../partials/info') %></main>
+        <main>
+            <%- include('../partials/todos', {todos}) %> <%- include('../partials/register') %> <%- include('../partials/login') %><%-
+            include('../partials/info') %>
+        </main>
         <%- include('../partials/footer') %>
     </body>
 </html>

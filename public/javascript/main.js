@@ -17,7 +17,7 @@ const infoDialogHandler = (jsonResponse) => {
     const dialogOkButton = document.getElementById('dialog-ok-button')
     const dialogHeader = document.querySelector('.dialog-header h2')
     const dialogBody = document.querySelector('.dialog-body p')
-    console.log(`${JSON.stringify(title)} and ${JONSmessage} has been received`)
+    console.log(`${JSON.stringify(title)} and ${JSON.stringify(message)} has been received`)
     dialogHeader.textContent = title
     dialogBody.textContent = message
     // Show the dialog
@@ -34,56 +34,56 @@ const infoDialogHandler = (jsonResponse) => {
     })
 }
 
-const modalHandler = () => {
-    const registerModal = document.getElementById('registerModal')
-    const openModalBtn = document.querySelector('.registerButtonModal')
-    const closeModalBtn = document.getElementById('closeModalBtn')
-    const cancelBtn = document.getElementById('cancelBtn')
-    const registerForm = document.getElementById('registerForm')
+const modalHandler = (modalId, buttonClass, formId, submitUrl) => {
+    const modal = document.getElementById(modalId)
+    const openModalBtn = document.querySelector(`.${buttonClass}`)
+    const closeModalBtn = modal.querySelector('.closeModalBtn')
+    const cancelBtn = modal.querySelector('.cancelBtn')
+    const form = document.getElementById(formId)
 
     openModalBtn.addEventListener('click', () => {
-        registerModal.showModal()
+        modal.showModal()
     })
 
     closeModalBtn.addEventListener('click', () => {
-        registerModal.close()
+        modal.close()
     })
 
     cancelBtn.addEventListener('click', () => {
-        registerModal.close()
+        modal.close()
     })
 
-    registerForm.addEventListener('submit', async (event) => {
+    form.addEventListener('submit', async (event) => {
         event.preventDefault()
 
-        const formData = new FormData(registerForm)
-        const data = {
-            username: formData.get('username'),
-            email: formData.get('email'),
-            password: formData.get('password'),
-        }
+        const formData = new FormData(form)
+        const data = {}
+        formData.forEach((value, key) => {
+            data[key] = value
+        })
 
         try {
-            // console.log(JSON.stringify(data))
-            const response = await fetch('/auth/register', {
+            const response = await fetch(submitUrl, {
                 method: 'POST',
                 headers: {
-                    Accept: 'text/html',
+                    Accept: 'application/json',
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(data),
             })
-            console.log(JSON.stringify(response))
+
             if (response.ok) {
-                console.log('Registration successful!')
-                registerModal.close()
-                let jsonResponse = await response.json()
+                console.log('Submission successful!')
+                modal.close()
+                const jsonResponse = await response.json()
                 console.log(jsonResponse)
                 infoDialogHandler(jsonResponse)
             } else {
-                console.error('Registration failed')
+                let errorMessage = await response.json()
+
+                infoDialogHandler({ title: `Error ${errorMessage.status}`, message: errorMessage.message })
+                console.error('Submission failed')
                 // Afficher l'erreur pour l'utilisateur
-                //
             }
         } catch (error) {
             console.error('Error:', error)
@@ -98,5 +98,6 @@ document.addEventListener('DOMContentLoaded', function () {
         checkbox.addEventListener('change', checkboxlistener)
     })
 
-    modalHandler()
+    modalHandler('registerModal', 'registerButtonModal', 'registerForm', '/auth/register')
+    modalHandler('loginModal', 'loginButtonModal', 'loginForm', '/auth/login')
 })
