@@ -71,7 +71,7 @@ const authController = {
         token.id = logeduser._id
         // Envoi du token
         console.log(logeduser.username + ' is logged ')
-        res.json({ title: 'Logged', message: `${logeduser.username} is logged \n token:${token.id}` })
+        res.json({ title: 'Logged', message: `${logeduser.username} is logged \n token:${token.id},`, token: token.id, user: logeduser.username })
     },
 
     refresh: async (req, res) => {

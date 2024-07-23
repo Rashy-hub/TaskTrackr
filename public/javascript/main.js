@@ -34,6 +34,19 @@ const infoDialogHandler = (jsonResponse) => {
     })
 }
 
+const displayLoggedInUser = (username) => {
+    const userSpan = document.getElementById('userSpan')
+    userSpan.innerText = username
+    userSpan.style.textTransform = 'uppercase'
+    document.querySelector('.loginButtonModal').classList.toggle('hidden')
+    document.querySelector('.logoutButton').classList.toggle('hidden')
+    document.querySelector('.registerButtonModal').classList.toggle('hidden')
+
+    /*     <button class="button loginButtonModal">Login</button>
+            <button class="button logoutButton hidden">Logout</button>
+            <button class="button registerButtonModal">Register</button> */
+}
+
 const modalHandler = (modalId, buttonClass, formId, submitUrl) => {
     const modal = document.getElementById(modalId)
     const openModalBtn = document.querySelector(`.${buttonClass}`)
@@ -76,8 +89,11 @@ const modalHandler = (modalId, buttonClass, formId, submitUrl) => {
                 console.log('Submission successful!')
                 modal.close()
                 const jsonResponse = await response.json()
+                localStorage.setItem('token', jsonResponse.token)
+                localStorage.setItem('user', jsonResponse.user)
                 console.log(jsonResponse)
                 infoDialogHandler(jsonResponse)
+                displayLoggedInUser(jsonResponse.user)
             } else {
                 let errorMessage = await response.json()
 
@@ -100,4 +116,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     modalHandler('registerModal', 'registerButtonModal', 'registerForm', '/auth/register')
     modalHandler('loginModal', 'loginButtonModal', 'loginForm', '/auth/login')
+    const logoutButton = document.querySelector('.logoutButton')
+
+    logoutButton.addEventListener('click', (event) => {
+        document.querySelector('.loginButtonModal').classList.toggle('hidden')
+        document.querySelector('.logoutButton').classList.toggle('hidden')
+        document.querySelector('.registerButtonModal').classList.toggle('hidden')
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
+        infoDialogHandler({ title: 'Logged out', message: 'See You Soon :D' })
+    })
 })
