@@ -8,6 +8,6 @@ todoRouter.get('/todo', authentificateJwt(), todoController.getTodos)
 todoRouter.post('/todo/add', authentificateJwt(), todoController.addTodo)
 todoRouter.post('/todo/complete/:id', authentificateJwt(), todoController.completeTodo)
 todoRouter.post('/todo/delete/:id', authentificateJwt(), todoController.deleteTodo)
-todoRouter.get('/todo/clear', authentificateJwt(), todoController.clearTodo)
+todoRouter.post('/todo/clear', authentificateJwt(), todoController.clearTodo)
 
 module.exports = todoRouter

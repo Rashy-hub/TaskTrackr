@@ -1,3 +1,4 @@
+const { default: mongoose } = require('mongoose')
 const Todo = require('../models/todo')
 const User = require('../models/user')
 
@@ -19,7 +20,7 @@ exports.getTodos = async (req, res) => {
         const todos = await Todo.find({ user: userId })
 
         console.log('Rendering layout with filtered todos')
-        res.render('layouts/main', { todos })
+        res.json({ todos })
     } catch (err) {
         console.error(err)
         res.status(500).send('Error retrieving todos')
@@ -27,13 +28,15 @@ exports.getTodos = async (req, res) => {
 }
 
 exports.addTodo = async (req, res) => {
-    const { user, newTodo } = req.body
+    const { user, text } = req.body
+    const userId = req.user.id // Get the logged-in user's ID
     // const currentUser = await UserModel.findOne({ _id: req.user })
-    console.log(`add todo "${newTodo}" as user ${user} with id = ${req.user.id}`)
+    console.log(`add todo "${text}" as user ${user} with id = ${req.user.id}`)
     try {
-        const todo = new Todo({ text: newTodo, completed: false, user: req.user.id })
+        const todo = new Todo({ text: text, completed: false, user: req.user.id })
         await todo.save()
-        res.json({ message: `add todo "${newTodo}" as user ${user} with id = ${req.user.id}` })
+        const todos = await Todo.find({ user: userId })
+        res.json({ todos })
         //res.redirect('/todo')
     } catch (err) {
         console.error(err)
@@ -42,10 +45,21 @@ exports.addTodo = async (req, res) => {
 }
 exports.completeTodo = async (req, res) => {
     const { id } = req.params
+    // Ensure req.user is populated with the authenticated user's information
+    if (!req.user || !req.user.id) {
+        return res.status(401).send('Unauthorized: User not authenticated')
+    }
+
+    const userId = req.user.id // Get the logged-in user's ID
 
     try {
         // Find the todo by ID
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            console.log(id)
+            return res.status(400).send('Invalid todo ID')
+        }
         const todo = await Todo.findById(id)
+        console.log('GETTING INSIDE CONTROLER COMPLETEDTODO')
 
         if (!todo) {
             return res.status(404).send('Todo not found')
@@ -56,9 +70,8 @@ exports.completeTodo = async (req, res) => {
 
         // Save the updated todo
         await todo.save()
-
-        // Redirect or send a success response (optional)
-        res.redirect('/') // Assuming redirect on success
+        const todos = await Todo.find({ user: userId })
+        res.json({ todos })
     } catch (err) {
         console.error(err)
         res.status(500).send('Error updating todo')
@@ -66,9 +79,22 @@ exports.completeTodo = async (req, res) => {
 }
 exports.deleteTodo = async (req, res) => {
     const { id } = req.params
+    // Ensure req.user is populated with the authenticated user's information
+    if (!req.user || !req.user.id) {
+        return res.status(401).send('Unauthorized: User not authenticated')
+    }
+
+    const userId = req.user.id // Get the logged-in user's ID
+
     try {
+        // Find the todo by ID
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            console.log(id)
+            return res.status(400).send('Invalid todo ID')
+        }
         await Todo.findByIdAndDelete(id)
-        res.redirect('/todo')
+        const todos = await Todo.find({ user: userId })
+        res.json({ todos })
     } catch (err) {
         console.error(err)
         res.status(500).send('Error deleting todo')
@@ -77,8 +103,9 @@ exports.deleteTodo = async (req, res) => {
 
 exports.clearTodo = async (req, res) => {
     try {
+        todos = {}
         await Todo.deleteMany({})
-        res.redirect('/')
+        res.json({ todos: [] })
     } catch (err) {
         console.error(err)
         res.status(500).send('Error deleting todo')
