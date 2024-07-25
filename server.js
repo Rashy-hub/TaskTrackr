@@ -29,7 +29,7 @@ mongoose
     .connect(mongoURI)
     .then(() => console.log(`Connected to MongoDB - Connection string :  ${mongoURI}`))
     .catch((err) => console.error('Error connecting to MongoDB:', err))
-MONGO_LOCAL
+
 // Middleware
 app.set('view engine', 'ejs')
 app.use(logRequest)
