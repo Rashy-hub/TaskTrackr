@@ -8,24 +8,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const logoutButton = document.querySelector('.logoutButton')
     logoutButton.addEventListener('click', (event) => {
         displayLoggedOutPage()
-        infoDialogHandler({ title: 'Logged out', message: 'See You Soon :D' })
+        infoDialogHandler({ title: 'Déconnecté', message: 'À bientôt :D' })
     })
-    // Add event listner for the add todo button and form :
+
+    // Add event listener for the add todo button and form
     const addTodoForm = document.querySelector('.addTodo')
 
-    //VA falloire remove l'event listener sur ce foutu bouton submit afin
     addTodoForm.addEventListener('submit', (event) => {
         event.preventDefault()
-        submitFormWithToken(addTodoForm)
+        submitFormWithToken(addTodoForm, 'POST')
         document.getElementById('inputTodo').value = ''
         document.getElementById('inputTodo').focus()
     })
+
     const username = localStorage.getItem('user')
     const token = localStorage.getItem('token')
 
     if (username && token) {
         displayLoggedInUser(username)
-        // Add the token to all form submissions
     }
 })
 
@@ -64,7 +64,6 @@ const checkboxlistener = async (event) => {
 
         if (response.ok) {
             const result = await response.json()
-
             updateTodos(result)
         } else {
             console.error('Form submission failed:', response.status, response.statusText)
@@ -85,13 +84,14 @@ const infoDialogHandler = (jsonResponse) => {
     dialogBody.textContent = message
     dialog.showModal()
 
-    dialogOkButton.addEventListener('click', () => {
+    const newDialogOkButton = dialogOkButton.cloneNode(true)
+    dialogOkButton.parentNode.replaceChild(newDialogOkButton, dialogOkButton)
+
+    newDialogOkButton.addEventListener('click', () => {
         dialog.close()
     })
 }
-//for some reason there is a bug with the first handler
 
-// Display the logged-in user's name and update the UI
 const displayLoggedInUser = async (username) => {
     const userSpan = document.getElementById('userSpan')
     userSpan.innerText = username
@@ -106,12 +106,9 @@ const displayLoggedInUser = async (username) => {
     document.getElementById('clear').disabled = false
     let result = await getTodos()
 
-    // FROME EVENT ADD EVENT LISTENERS FOR MY INPUT TODO SUBMIT
-
     updateTodos(result)
 }
 
-// Display the logged-out state and clear sensitive information
 const displayLoggedOutPage = () => {
     const userSpan = document.getElementById('userSpan')
     userSpan.innerText = 'Please connect to see the'
@@ -129,7 +126,6 @@ const displayLoggedOutPage = () => {
     document.getElementById('clear').disabled = true
 }
 
-// Handler to manage form submission in modals
 const modalFormEventsHandler = (form, submitUrl, modal) => {
     form.addEventListener('submit', async (event) => {
         event.preventDefault()
@@ -143,7 +139,6 @@ const modalFormEventsHandler = (form, submitUrl, modal) => {
     })
 }
 
-// Fetch handler for modal forms
 const modalFetchHandler = async (data, submitUrl, modal) => {
     try {
         const response = await fetch(submitUrl, {
@@ -171,7 +166,6 @@ const modalFetchHandler = async (data, submitUrl, modal) => {
     }
 }
 
-// Modal handler for opening and closing modals
 const modalHandler = (modalId, buttonClass, formId, submitUrl) => {
     const modal = document.getElementById(modalId)
     const openModalBtn = document.querySelector(`.${buttonClass}`)
@@ -186,8 +180,7 @@ const modalHandler = (modalId, buttonClass, formId, submitUrl) => {
     modalFormEventsHandler(form, submitUrl, modal)
 }
 
-// Function to submit forms with the token included in the headers
-async function submitFormWithToken(form) {
+async function submitFormWithToken(form, method = 'POST') {
     const token = localStorage.getItem('token')
     const formData = new FormData(form)
     const data = {}
@@ -198,7 +191,7 @@ async function submitFormWithToken(form) {
 
     try {
         const response = await fetch(form.action, {
-            method: form.method,
+            method: method,
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${token}`,
@@ -208,33 +201,34 @@ async function submitFormWithToken(form) {
 
         if (response.ok) {
             const result = await response.json()
-
             updateTodos(result)
         } else {
             console.error('Request failed:', response.status, response.statusText)
+            const error = await response.text()
+            alert(`Erreur: ${error}`)
         }
     } catch (error) {
         console.error('Error:', error)
     }
 }
+
 function updateTodos(todosData) {
-    if (todosData.todos.length === 0) {
+    if (!todosData || todosData.todos.length === 0) {
         console.log('TODOS LIST EMPTY')
+        document.querySelector('.todo-list').innerHTML = '<p>Aucune tâche à afficher.</p>'
+        return
     }
     let todos = todosData.todos
 
     try {
         const todoList = document.querySelector('.todo-list')
-
         todoList.innerHTML = ''
 
-        // Populate the todo list
         todos.forEach((todo) => {
             const li = document.createElement('li')
             li.className = `todo-item ${todo.completed ? 'completed' : ''}`
 
             const completeForm = document.createElement('form')
-
             completeForm.action = `api/todo/complete/${todo._id}`
             completeForm.method = 'POST'
             completeForm.className = 'todo-complete-form form-with-token'
@@ -252,28 +246,41 @@ function updateTodos(todosData) {
 
             const span = document.createElement('span')
             span.textContent = todo.text
+            span.className = 'todo-text'
             li.appendChild(span)
 
             const actionsDiv = document.createElement('div')
             actionsDiv.className = 'actions'
 
             const editForm = document.createElement('form')
-
-            editForm.action = `api/todo/edit/${todo._id}`
-            editForm.method = 'POST'
-            editForm.className = 'form-with-token'
+            editForm.className = 'form-with-token edit-form'
 
             const editButton = document.createElement('button')
-            editButton.type = 'submit'
-            editButton.disabled = true
+            editButton.type = 'button' // Not a submit button
+            editButton.className = 'edit-button'
             const editImg = document.createElement('img')
             editImg.src = '/assets/pen.svg'
-            editImg.alt = 'pen'
+            editImg.alt = 'edit'
             editButton.appendChild(editImg)
             editForm.appendChild(editButton)
             actionsDiv.appendChild(editForm)
 
-            // Create the delete form
+            const saveButton = document.createElement('button')
+            saveButton.type = 'button'
+            saveButton.className = 'save-button'
+            saveButton.innerText = 'Save'
+            saveButton.style.display = 'none'
+
+            actionsDiv.appendChild(saveButton)
+
+            const editInput = document.createElement('input')
+            editInput.type = 'text'
+            editInput.value = todo.text
+            editInput.className = 'edit-input'
+            editInput.style.display = 'none'
+
+            li.insertBefore(editInput, span)
+
             const deleteForm = document.createElement('form')
             deleteForm.action = `api/todo/delete/${todo._id}`
             deleteForm.method = 'POST'
@@ -290,28 +297,64 @@ function updateTodos(todosData) {
 
             li.appendChild(actionsDiv)
 
-            // Append the list item to the list
             todoList.appendChild(li)
 
-            // Add event listeners to checkboxes
-            const checkboxes = document.querySelectorAll('.iscomplete')
-            checkboxes.forEach((checkbox) => {
-                checkbox.addEventListener('change', checkboxlistener)
+            checkbox.addEventListener('change', checkboxlistener)
+
+            deleteForm.addEventListener('submit', function (event) {
+                event.preventDefault()
+                submitFormWithToken(deleteForm, 'POST')
             })
-            const forms = document.querySelectorAll('.form-with-token')
 
-            forms.forEach((form) => {
-                form.addEventListener('submit', function (event) {
-                    event.preventDefault()
+            editButton.addEventListener('click', () => {
+                span.style.display = 'none'
+                editInput.style.display = 'inline-block'
+                editInput.focus()
+                saveButton.style.height = '52px'
+                saveButton.style.width = '45.2px'
+                editButton.style.display = 'none'
+                saveButton.style.display = 'inline-block'
+            })
 
-                    submitFormWithToken(form)
-                })
+            saveButton.addEventListener('click', async () => {
+                const newText = editInput.value.trim()
+                if (newText === '') {
+                    alert('Le texte de la tâche ne peut pas être vide.')
+                    return
+                }
+
+                const token = localStorage.getItem('token')
+                const todoId = todo._id
+
+                try {
+                    const response = await fetch(`api/todo/update/${todoId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Authorization: `Bearer ${token}`,
+                        },
+                        body: JSON.stringify({ text: newText }),
+                    })
+
+                    if (response.ok) {
+                        const result = await response.json()
+                        updateTodos(result)
+                    } else {
+                        const error = await response.text()
+                        console.error('Mise à jour échouée:', response.status, response.statusText, error)
+                        alert('Échec de la mise à jour de la tâche.')
+                    }
+                } catch (error) {
+                    console.error('Erreur lors de la mise à jour de la tâche:', error)
+                    alert('Erreur lors de la mise à jour de la tâche.')
+                }
             })
         })
     } catch (error) {
-        console.error('Error updating todos:', error)
+        console.error('Erreur lors de la mise à jour des todos:', error)
     }
 }
+
 async function getTodos() {
     let token = localStorage.getItem('token')
     try {
@@ -329,8 +372,10 @@ async function getTodos() {
             return result
         } else {
             console.error('Request failed:', response.status, response.statusText)
+            return { todos: [] }
         }
     } catch (error) {
         console.error('Error:', error)
+        return { todos: [] }
     }
 }
