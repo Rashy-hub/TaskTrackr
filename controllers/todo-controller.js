@@ -9,7 +9,8 @@ exports.getTodos = async (req, res) => {
             return res.status(401).send('Unauthorized: User not authenticated')
         }
 
-        const userId = req.user.id / console.log(userId)
+        const userId = req.user.id
+        console.log(userId)
 
         if (!mongoose.Types.ObjectId.isValid(userId)) {
             return res.status(400).send('Invalid user ID')
