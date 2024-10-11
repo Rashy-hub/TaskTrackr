@@ -57,7 +57,6 @@ exports.completeTodo = async (req, res) => {
             return res.status(400).send('Invalid todo ID')
         }
         const todo = await Todo.findById(id)
-        console.log('GETTING INSIDE CONTROLER COMPLETEDTODO')
 
         if (!todo) {
             return res.status(404).send('Todo not found')
@@ -109,5 +108,47 @@ exports.clearTodo = async (req, res) => {
     } catch (err) {
         console.error(err)
         res.status(500).send('Error clearing todos')
+    }
+}
+
+exports.updateTodo = async (req, res) => {
+    const { id } = req.params
+    const { text, completed } = req.body //text and completed are both optional
+
+    if (!req.user || !req.user.id) {
+        return res.status(401).send('Unauthorized: User not authenticated')
+    }
+
+    const userId = req.user.id
+
+    try {
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).send('Invalid todo ID')
+        }
+
+        const todo = await Todo.findById(id)
+
+        if (!todo) {
+            return res.status(404).send('Todo not found')
+        }
+
+        if (todo.user.toString() !== userId) {
+            return res.status(403).send('Unauthorized: You do not have permission to update this todo')
+        }
+
+        if (text !== undefined) {
+            todo.text = text
+        }
+        if (completed !== undefined) {
+            todo.completed = completed
+        }
+
+        await todo.save()
+
+        const todos = await Todo.find({ user: userId })
+        res.json({ todos })
+    } catch (err) {
+        console.error(err)
+        res.status(500).send('Error updating todo')
     }
 }
