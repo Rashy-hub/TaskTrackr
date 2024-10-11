@@ -14,7 +14,7 @@ This is a Todo List Application that allows users to manage their tasks efficien
 
 ### Frontend:
 
--   HTML, CSS, JavaScript (served from the public folder)
+-   Classic HTML, CSS, JavaScript with DOM manipulation (served from the public folder as static ressources)
 
 ### Backend:
 
@@ -43,5 +43,6 @@ This is a Todo List Application that allows users to manage their tasks efficien
 -   **GET** `/api/todos`: Get all todos for the authenticated user.
 -   **POST** `/api/todos`: Add a new todo.
 -   **PUT** `/api/todos/:id/complete`: Toggle completion status of a todo.
+-   **PUT** `/api/todos/:id/edit`: Edit an existing todo
 -   **DELETE** `/api/todos/:id`: Delete a specific todo.
 -   **DELETE** `/api/todos/clear`: Clear all todos for the authenticated user.
