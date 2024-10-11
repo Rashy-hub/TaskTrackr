@@ -1,4 +1,4 @@
-# Todo List Demo
+# TaskTrackr
 
 This is a Todo List Application that allows users to manage their tasks efficiently. It features user authentication (registration, login, and logout) and supports basic CRUD operations for managing todos (create, read, update, delete). The frontend is served as static resources from the public folder, and it interacts with a Node.js backend that uses Express.js and MongoDB for data storage.
 
