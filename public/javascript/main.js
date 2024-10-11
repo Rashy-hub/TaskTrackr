@@ -109,8 +109,6 @@ const displayLoggedInUser = async (username) => {
     // FROME EVENT ADD EVENT LISTENERS FOR MY INPUT TODO SUBMIT
 
     updateTodos(result)
-
-    updateTodos(result)
 }
 
 // Display the logged-out state and clear sensitive information
