@@ -48,7 +48,7 @@ app.get('/', (req, res) => {
 })
 
 app.use('*', extractRoutes, (req, res) => {
-    const errorMessage = 'Page not found. Available routes:'
+    const errorMessage = 'Page not found. Available routes on https://todo-list-demo.onrender.com/api/ are :'
     const responseBody = {
         error: errorMessage,
         availableRoutes: req.extractedPaths,
