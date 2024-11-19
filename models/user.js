@@ -1,5 +1,5 @@
-const mongoose = require('mongoose')
-const uniqueValidator = require('mongoose-unique-validator')
+import mongoose from 'mongoose'
+import uniqueValidator from 'mongoose-unique-validator'
 
 const UserSchema = new mongoose.Schema(
     {
@@ -36,4 +36,5 @@ const UserSchema = new mongoose.Schema(
 UserSchema.plugin(uniqueValidator, { message: 'is already taken.' })
 
 const UserModel = mongoose.model('users', UserSchema)
-module.exports = UserModel
+
+export default UserModel

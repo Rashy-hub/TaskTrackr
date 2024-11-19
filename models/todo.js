@@ -1,18 +1,20 @@
-const mongoose = require('mongoose')
+import mongoose from 'mongoose'
 
 const TodoSchema = new mongoose.Schema({
     text: {
         type: String,
         required: true,
     },
-    completed: {
-        type: Boolean,
-        default: false,
+    status: {
+        type: String,
+        enum: ['DONE', 'IN PROGRESS', 'STANDBY', 'REPORTED'],
+        default: 'IN PROGRESS',
+        required: true,
     },
-    // Référence à l'utilisateur
+    // User Ref
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'users', required: true },
 })
 
 const Todo = mongoose.model('todos', TodoSchema)
 
-module.exports = Todo
+export default Todo
