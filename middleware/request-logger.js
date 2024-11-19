@@ -1,16 +1,16 @@
+import logger from '../configs/logger-config.js'
 function logRequest(req, res, next) {
-    const method = req.method
-    const url = req.url
+    const { method, url } = req
     const startTime = Date.now()
-    console.log(req.url)
+
+    logger.info(`Incoming request: ${method} ${url}`)
 
     res.on('finish', () => {
         const statusCode = res.statusCode
         const elapsedTime = Date.now() - startTime
-        console.log(`${method} ${url} - ${statusCode} - ${elapsedTime}ms`)
+        logger.info(`Request completed: ${method} ${url} - Status: ${statusCode} - Duration: ${elapsedTime}ms`)
     })
 
     next()
 }
-
-module.exports = logRequest
+export default logRequest
