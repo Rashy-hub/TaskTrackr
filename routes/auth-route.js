@@ -1,12 +1,13 @@
-const express = require('express')
-const authController = require('../controllers/auth-controller')
-const bodyValidation = require('../middleware/body-validation')
-const { registerValidator, loginValidator, refreshValidator } = require('../validators/auth-validators')
+import express from 'express'
+import { registerUser, loginUser, refreshUser } from '../controllers/auth-controller.js'
+
+import bodyValidation from '../middleware/body-validation.js'
+import { registerValidator, loginValidator, refreshValidator } from '../validators/auth-validators.js'
 
 const authRouter = express.Router()
 
-authRouter.post('/auth/register', bodyValidation(registerValidator), authController.register)
-authRouter.post('/auth/login', bodyValidation(loginValidator), authController.login)
-authRouter.post('/auth/refresh', bodyValidation(refreshValidator), authController.refresh)
+authRouter.post('/auth/register', bodyValidation(registerValidator), registerUser)
+authRouter.post('/auth/login', bodyValidation(loginValidator), loginUser)
+authRouter.post('/auth/refresh', bodyValidation(refreshValidator), refreshUser)
 
-module.exports = authRouter
+export default authRouter
