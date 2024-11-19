@@ -10,11 +10,13 @@ const todoIdValidator = yup.object().shape({
 })
 
 const todoBodyValidator = yup.object().shape({
-    text: yup.string().required('Todo `text` field is required').max(50),
+    text: yup.string().nullable().default('').max(50),
+
     status: yup
         .string()
         .oneOf(['DONE', 'IN PROGRESS', 'STANDBY', 'REPORTED'], 'Status must be one of the following: DONE, IN PROGRESS, STANDBY, REPORTED')
-        .default('STANDBY')
+        .nullable()
+        .default('IN PROGRESS')
         .required('Todo `status` field is required'),
 })
 

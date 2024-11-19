@@ -29,6 +29,7 @@ const UserSchema = new mongoose.Schema(
         salt: String,
         isAdmin: Boolean,
         todos: [{ type: mongoose.Schema.Types.ObjectId, ref: 'todos' }],
+        topics: [{ type: mongoose.Schema.Types.ObjectId, ref: 'topics' }],
     },
     { timestamps: true }
 )

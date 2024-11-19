@@ -10,7 +10,7 @@ import logRequest from './middleware/request-logger.js'
 import { registratedRoutes, extractRoutes } from './middleware/registrated-routes.js'
 import errorHandler from './middleware/errors-Handler.js'
 import cookieParser from 'cookie-parser'
-
+console.clear()
 const app = express()
 app.use(cors())
 app.use(express.urlencoded({ extended: true }))

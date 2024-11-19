@@ -9,10 +9,9 @@ const todoRouter = express.Router()
 
 todoRouter.get('/todo', authenticateToken, todoController.getTodos)
 todoRouter.get('/todo/:id', authenticateToken, paramsValidation(todoIdValidator), todoController.getTodo)
-todoRouter.post('/todo/add', authenticateToken, bodyValidation(todoBodyValidator), todoController.addTodo)
-todoRouter.post('/todo/complete/:id', authenticateToken, paramsValidation(todoIdValidator), todoController.completeTodo)
-todoRouter.post('/todo/delete/:id', authenticateToken, paramsValidation(todoIdValidator), todoController.deleteTodo)
-todoRouter.post('/todo/clear', authenticateToken, todoController.clearTodos)
-todoRouter.put('/todo/update/:id', authenticateToken, paramsValidation(todoIdValidator), todoController.updateTodo)
+todoRouter.post('/todo', authenticateToken, bodyValidation(todoBodyValidator), todoController.addTodo)
+todoRouter.put('/todo/:id', authenticateToken, paramsValidation(todoIdValidator), bodyValidation(todoBodyValidator), todoController.updateTodo)
+todoRouter.delete('/todo', authenticateToken, todoController.clearTodos) // deletes all todos
+todoRouter.delete('/todo/:id', authenticateToken, paramsValidation(todoIdValidator), todoController.deleteTodo)
 
 export default todoRouter
