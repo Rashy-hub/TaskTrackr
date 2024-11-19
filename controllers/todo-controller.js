@@ -1,154 +1,118 @@
-const { default: mongoose } = require('mongoose')
-const Todo = require('../models/todo')
-const User = require('../models/user')
+import asyncHandler from 'express-async-handler'
+import Todo from '../models/todo.js'
 
-exports.getTodos = async (req, res) => {
-    try {
-        // Ensure req.user is populated with the authenticated user's information
-        if (!req.user || !req.user.id) {
-            return res.status(401).send('Unauthorized: User not authenticated')
-        }
+import { SuccessResponse } from '../utils/response-schemas.js'
+import { BadRequestErrorResponse, ForbiddenErrorResponse, NotFoundErrorResponse } from '../utils/error-schemas.js'
 
-        const userId = req.user.id
-        console.log(userId)
-
-        if (!mongoose.Types.ObjectId.isValid(userId)) {
-            return res.status(400).send('Invalid user ID')
-        }
-
-        const todos = await Todo.find({ user: userId })
-
-        console.log('Rendering layout with filtered todos')
-        res.json({ todos })
-    } catch (err) {
-        console.error(err)
-        res.status(500).send('Error retrieving todos')
-    }
-}
-
-exports.addTodo = async (req, res) => {
-    const { user, text } = req.body
-    const userId = req.user.id
-    // const currentUser = await UserModel.findOne({ _id: req.user })
-    console.log(`add todo "${text}" as user ${user} with id = ${req.user.id}`)
-    try {
-        const todo = new Todo({ text: text, completed: false, user: req.user.id })
-        await todo.save()
-        const todos = await Todo.find({ user: userId })
-        res.json({ todos })
-        //res.redirect('/todo')
-    } catch (err) {
-        console.error(err)
-        res.status(500).send('Error adding todo')
-    }
-}
-exports.completeTodo = async (req, res) => {
-    const { id } = req.params
-
-    if (!req.user || !req.user.id) {
-        return res.status(401).send('Unauthorized: User not authenticated')
-    }
-
-    const userId = req.user.id // Get the logged-in user's ID
-
-    try {
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            console.log(id)
-            return res.status(400).send('Invalid todo ID')
-        }
-        const todo = await Todo.findById(id)
-
-        if (!todo) {
-            return res.status(404).send('Todo not found')
-        }
-
-        todo.completed = !todo.completed
-
-        await todo.save()
-        const todos = await Todo.find({ user: userId })
-        res.json({ todos })
-    } catch (err) {
-        console.error(err)
-        res.status(500).send('Error updating todo')
-    }
-}
-exports.deleteTodo = async (req, res) => {
-    const { id } = req.params
-
-    if (!req.user || !req.user.id) {
-        return res.status(401).send('Unauthorized: User not authenticated')
-    }
-
+// Get all todos
+export const getTodos = asyncHandler(async (req, res) => {
     const userId = req.user.id
 
-    try {
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            console.log(id)
-            return res.status(400).send('Invalid todo ID')
-        }
-        await Todo.findByIdAndDelete(id)
-        const todos = await Todo.find({ user: userId })
-        res.json({ todos })
-    } catch (err) {
-        console.error(err)
-        res.status(500).send('Error deleting todo')
-    }
-}
+    const todos = await Todo.find({ user: userId })
+    const response = new SuccessResponse('Todos retrieved successfully', { todos })
 
-exports.clearTodo = async (req, res) => {
-    if (!req.user || !req.user.id) {
-        return res.status(401).send('Unauthorized: User not authenticated')
+    res.status(response.status).json(response)
+})
+
+// Get a single todo by id
+export const getTodo = asyncHandler(async (req, res) => {
+    const { id } = req.validatedParams
+
+    const todo = await Todo.findById(id)
+    if (!todo) {
+        throw new NotFoundErrorResponse('Todo not found')
     }
 
+    if (todo.user.toString() !== req.user.id) {
+        throw new ForbiddenErrorResponse('Unauthorized: No allowed to get this todo (not yours) ')
+    }
+
+    const response = new SuccessResponse('Todo found successfully', { todo })
+    res.status(response.status).json(response)
+})
+
+// Add a single todo by id
+export const addTodo = asyncHandler(async (req, res) => {
+    const { text, status } = req.body
+
+    const todo = new Todo({ text, status, user: req.user.id })
+    await todo.save()
+
+    const response = new SuccessResponse('Todo added successfully', { todo })
+    res.status(response.status).json(response)
+})
+
+// Update todo complete status
+export const completeTodo = asyncHandler(async (req, res) => {
+    const { id } = req.validatedParams
+    const todo = await Todo.findById(id)
+    if (!todo) {
+        throw new NotFoundErrorResponse('Todo not found')
+    }
+
+    if (todo.user.toString() !== req.user.id) {
+        throw new ForbiddenErrorResponse('Unauthorized: Cannot update this todo')
+    }
+
+    todo.completed = !todo.completed
+    await todo.save()
+
+    const response = new SuccessResponse('Todo status updated successfully', { todo })
+    res.status(response.status).json(response)
+})
+
+// Delete a todo by id
+export const deleteTodo = asyncHandler(async (req, res) => {
+    const { id } = req.validatedParams
+
+    const todo = await Todo.findById(id)
+    if (!todo) {
+        throw new NotFoundErrorResponse('Todo not found')
+    }
+
+    if (todo.user.toString() !== req.user.id) {
+        throw new ForbiddenErrorResponse('Unauthorized: Cannot delete this todo')
+    }
+
+    await todo.remove()
+
+    const response = new SuccessResponse('Todo deleted successfully')
+    res.status(response.status).json(response)
+})
+
+// Deletes all todos for a user
+export const clearTodos = asyncHandler(async (req, res) => {
     const userId = req.user.id
 
-    try {
-        await Todo.deleteMany({ user: userId })
-        res.json({ todos: [] })
-    } catch (err) {
-        console.error(err)
-        res.status(500).send('Error clearing todos')
+    await Todo.deleteMany({ user: userId })
+
+    const response = new SuccessResponse('All todos cleared successfully')
+    res.status(response.status).json(response)
+})
+
+// update a todo
+export const updateTodo = asyncHandler(async (req, res) => {
+    const { id } = req.validatedParams
+    const { text, completed } = req.body
+
+    const todo = await Todo.findById(id)
+    if (!todo) {
+        throw new NotFoundErrorResponse('Todo not found')
     }
-}
 
-exports.updateTodo = async (req, res) => {
-    const { id } = req.params
-    const { text, completed } = req.body //text and completed are both optional
-
-    if (!req.user || !req.user.id) {
-        return res.status(401).send('Unauthorized: User not authenticated')
+    if (todo.user.toString() !== req.user.id) {
+        throw new ForbiddenErrorResponse('Unauthorized: Cannot update this todo')
     }
 
-    const userId = req.user.id
-
-    try {
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            return res.status(400).send('Invalid todo ID')
-        }
-
-        const todo = await Todo.findById(id)
-
-        if (!todo) {
-            return res.status(404).send('Todo not found')
-        }
-
-        if (todo.user.toString() !== userId) {
-            return res.status(403).send('Unauthorized: You do not have permission to update this todo')
-        }
-
-        if (text !== undefined) {
-            todo.text = text
-        }
-        if (completed !== undefined) {
-            todo.completed = completed
-        }
-
-        await todo.save()
-
-        const todos = await Todo.find({ user: userId })
-        res.json({ todos })
-    } catch (err) {
-        console.error(err)
-        res.status(500).send('Error updating todo')
+    if (text !== undefined) {
+        todo.text = text
     }
-}
+    if (completed !== undefined) {
+        todo.completed = completed
+    }
+
+    await todo.save()
+
+    const response = new SuccessResponse('Todo updated successfully', { todo })
+    res.status(response.status).json(response)
+})
