@@ -1,88 +1,91 @@
-const bcrypt = require('bcrypt')
-const UserModel = require('../models/user')
-const { generateJWT } = require('../utils/jwt-utils')
-const { ErrorResponse } = require('../utils/error-schema')
+import bcrypt from 'bcrypt'
+import UserModel from '../models/user.js'
+import { generateJWT } from '../utils/jwt-utils.js'
+import { ConflictErrorResponse, NotFoundErrorResponse, UnauthorizedErrorResponse } from '../utils/error-schemas.js'
+import asyncHandler from 'express-async-handler'
+import { AuthLoginResponse, AuthRefreshResponse, AuthRegistrationResponse } from '../utils/response-schemas.js'
 
-const authController = {
-    register: async (req, res) => {
-        const { username, email, password } = req.validatedData
+export const registerUser = asyncHandler(async (req, res) => {
+    const { username, email, password } = req.validatedData
+    const hashedPassword = await bcrypt.hash(password, 10)
 
-        try {
-            const hashedPassword = await bcrypt.hash(password, 10)
+    const newUser = new UserModel({ username, email, password: hashedPassword })
+    const existingUser = await UserModel.findOne({ email })
 
-            const newUser = new UserModel({ username, email, password: hashedPassword })
+    if (existingUser) {
+        throw new ConflictErrorResponse('Email is already in use', [{ user: existingUser }])
+    }
+    const savedUser = await newUser.save()
 
-            const savedUser = await newUser.save()
+    const token = await generateJWT(savedUser._id)
 
-            const token = await generateJWT({
-                id: savedUser._id,
-                pseudo: savedUser.username,
-                isAdmin: savedUser.isAdmin,
-            })
+    // Set token in the cookie
+    res.cookie('token', token.token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production', // Set to true in production (HTTPS)
+        maxAge: 3600000, // 1 hour in milliseconds
+        sameSite: 'strict', // Protect against CSRF attacks
+    })
 
-            res.json({
-                title: 'Registration',
-                message: `${username} has been registered`,
-                token: token.token,
-                user: username,
-            })
-        } catch (error) {
-            res.status(422).json(new ErrorResponse('Registration failed: ' + error.message, 422))
-        }
-    },
+    const response = new AuthRegistrationResponse('User has been registered successfully', {
+        user: savedUser,
+    })
 
-    login: async (req, res) => {
-        const { email, password } = req.validatedData
+    res.status(response.status).json(response)
+})
 
-        try {
-            const user = await UserModel.findOne({ email: email })
-            if (!user) {
-                return res.status(422).json(new ErrorResponse('Invalid credentials', 422))
-            }
+export const loginUser = asyncHandler(async (req, res, next) => {
+    const { email, password } = req.validatedData
+    console.log('HELLO THERE')
+    const user = await UserModel.findOne({ email })
+    if (!user) {
+        next(new UnauthorizedErrorResponse('Invalid credentials, email not found in the database', [{ field: 'email' }]))
+    }
 
-            const isValid = await bcrypt.compare(password, user.password)
-            if (!isValid) {
-                return res.status(422).json(new ErrorResponse('Invalid credentials', 422))
-            }
+    const isValid = await bcrypt.compare(password, user.password)
+    if (!isValid) {
+        next(new UnauthorizedErrorResponse('Invalid credentials, password not matching', [{ field: 'password' }]))
+    }
+    UnauthorizedErrorResponse
+    const token = await generateJWT(user._id)
 
-            const token = await generateJWT({
-                id: user._id,
-                pseudo: user.username,
-                isAdmin: user.isAdmin,
-            })
+    // Set token in the cookie
+    res.cookie('token', token.token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production', // Set to true in production (HTTPS)
+        maxAge: 3600000, // 1 hour in milliseconds
+        sameSite: 'strict',
+    })
 
-            res.json({
-                title: 'Logged In',
-                message: `${user.username} is logged in`,
-                token: token.token,
-                user: user.username,
-                id: user._id,
-            })
-        } catch (error) {
-            res.status(500).json(new ErrorResponse('Login failed: ' + error.message, 500))
-        }
-    },
+    const response = new AuthLoginResponse('User has been logged in successfully', {
+        user: user.username,
+        id: user._id,
+    })
 
-    refresh: async (req, res) => {
-        const { email } = req.validatedData
+    res.status(response.status).json(response)
+})
 
-        try {
-            const user = await UserModel.findOne({ email: email })
-            if (!user) {
-                return res.status(404).json({ message: 'User not found' })
-            }
+export const refreshUser = asyncHandler(async (req, res) => {
+    const { email } = req.validatedData
 
-            const token = await generateJWT({
-                id: user._id,
-                pseudo: user.username,
-                isAdmin: user.isAdmin,
-            })
+    const user = await UserModel.findOne({ email })
+    if (!user) {
+        next(new NotFoundErrorResponse('User not found', [{ field: 'email' }]))
+    }
 
-            res.json({ token: token.token })
-        } catch (error) {
-            res.status(500).json(new ErrorResponse('Token refresh failed: ' + error.message, 500))
-        }
-    },
-}
+    const token = await generateJWT(user._id)
 
-module.exports = authController
+    // Set the new token in the cookie
+    res.cookie('token', token.token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 3600000, // 1 hour in milliseconds
+        sameSite: 'strict',
+    })
+
+    const response = new AuthRefreshResponse('Token has been refreshed successfully', {
+        token: token.token,
+    })
+
+    res.status(response.status).json(response)
+})
