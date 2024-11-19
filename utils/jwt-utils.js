@@ -1,61 +1,51 @@
-const jwt = require('jsonwebtoken')
+import jwt from 'jsonwebtoken'
+import { BadRequestErrorResponse, UnauthorizedErrorResponse, InternalServerErrorResponse } from './error-schemas.js'
 
-// Génération du JWT
-const generateJWT = ({ id, pseudo, isAdmin }) => {
-    return new Promise((resolve, reject) => {
-        const data = { id, pseudo, isAdmin }
-        const secret = process.env.JWT_SECRET
+// Generate JWT with minimal payload (user ID only)
+const generateJWT = async (userId) => {
+    if (!userId) {
+        throw new BadRequestErrorResponse('User ID is required to generate a JWT')
+    }
 
-        if (!secret) {
-            return reject(new Error('JWT secret not defined in environment'))
-        }
+    const secret = process.env.JWT_SECRET
+    if (!secret) {
+        throw new InternalServerErrorResponse('JWT secret not defined in environment')
+    }
 
-        const options = {
-            algorithm: 'HS512', // Algorithme pour la signature du token
-            audience: process.env.JWT_AUDIENCE || 'default_audience',
-            issuer: process.env.JWT_ISSUER || 'default_issuer',
-            expiresIn: '1y', // Durée de validité du token
-        }
+    const options = {
+        algorithm: 'HS512',
+        audience: process.env.JWT_AUDIENCE || 'default_audience',
+        issuer: process.env.JWT_ISSUER || 'default_issuer',
+        expiresIn: '1h', // Set the expiration to 1 hour; adjust as needed
+    }
 
-        jwt.sign(data, secret, options, (error, token) => {
-            if (error) {
-                return reject(new Error(`Token generation error: ${error.message}`))
-            }
-
-            const decodedToken = jwt.decode(token)
-            if (!decodedToken || !decodedToken.exp) {
-                return reject(new Error('Token decoding error'))
-            }
-
-            const expire = new Date(decodedToken.exp * 1000).toISOString()
-            resolve({ token, expire })
-        })
-    })
+    try {
+        const token = await jwt.sign({ id: userId }, secret, options)
+        return { token, expire: new Date(Date.now() + 3600 * 1000).toISOString() } // 1-hour expiration
+    } catch (error) {
+        throw new InternalServerErrorResponse(`Token generation error: ${error.message}`)
+    }
 }
 
-// Décodage du JWT
-const decodeJWT = (token) => {
-    return new Promise((resolve, reject) => {
-        const secret = process.env.JWT_SECRET
+const decodeJWT = async (token) => {
+    const secret = process.env.JWT_SECRET
+    if (!secret) {
+        throw new InternalServerErrorResponse('JWT secret not defined in environment')
+    }
 
-        if (!secret) {
-            return reject(new Error('JWT secret not defined in environment'))
+    try {
+        // Decode and verify the JWT
+        const data = await jwt.verify(token, secret)
+        return { id: data.id }
+    } catch (error) {
+        if (error.name === 'TokenExpiredError') {
+            // JWT is expired; throw error so the frontend can handle the refresh
+            throw new UnauthorizedErrorResponse('JWT expired, please refresh your token')
+        } else {
+            // Other errors are invalid JWT errors
+            throw new UnauthorizedErrorResponse('Invalid JWT')
         }
-
-        jwt.verify(token, secret, (error, data) => {
-            if (error) {
-                return reject(new Error('Invalid JWT'))
-            }
-            resolve({
-                id: data.id,
-                pseudo: data.pseudo,
-                isAdmin: data.isAdmin,
-            })
-        })
-    })
+    }
 }
 
-module.exports = {
-    generateJWT,
-    decodeJWT,
-}
+export { generateJWT, decodeJWT }

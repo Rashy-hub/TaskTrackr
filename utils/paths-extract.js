@@ -10,4 +10,4 @@ function extractPaths(data) {
     return paths
 }
 
-module.exports = extractPaths
+export default extractPaths
