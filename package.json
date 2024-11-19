@@ -3,6 +3,7 @@
     "version": "1.0.0",
     "description": "",
     "main": "server.js",
+    "type": "module",
     "scripts": {
         "start": "cross-env NODE_ENV=production node server.js",
         "dev": "cross-env NODE_ENV=development nodemon server.js"
@@ -12,6 +13,7 @@
     "license": "ISC",
     "dependencies": {
         "bcrypt": "^5.1.1",
+        "cookie-parser": "^1.4.7",
         "cors": "^2.8.5",
         "cross-env": "^7.0.3",
         "dotenv": "^16.4.5",

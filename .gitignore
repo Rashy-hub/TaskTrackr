@@ -3,3 +3,4 @@ temp
 .env
 .env.development
 .env.production
+logs/
