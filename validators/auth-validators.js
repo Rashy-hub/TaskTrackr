@@ -1,4 +1,4 @@
-const yup = require('yup')
+import * as yup from 'yup'
 
 const pwdRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W]).+$/
 const pwdRegexMsg = 'Your password is too weak :o'
@@ -17,8 +17,5 @@ const loginValidator = yup.object().shape({
 const refreshValidator = yup.object().shape({
     email: yup.string().trim().required(),
 })
-module.exports = {
-    registerValidator,
-    loginValidator,
-    refreshValidator,
-}
+
+export { registerValidator, loginValidator, refreshValidator }
