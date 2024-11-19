@@ -1,19 +1,21 @@
-require('dotenv-flow').config() // Load environment variables from .env file
-
-const express = require('express')
-const cors = require('cors')
-const path = require('path')
-const mongoose = require('mongoose')
-const todoRouter = require('./routes/todo-route')
-const authRouter = require('./routes/auth-route')
-const logRequest = require('./middleware/request-logger')
-const { registratedRoutes, extractRoutes } = require('./middleware/registratedRoutes')
+import dotenvFlow from 'dotenv-flow'
+dotenvFlow.config()
+import express from 'express'
+import cors from 'cors'
+import path from 'path'
+import mongoose from 'mongoose'
+import todoRouter from './routes/todo-route.js'
+import authRouter from './routes/auth-route.js'
+import logRequest from './middleware/request-logger.js'
+import { registratedRoutes, extractRoutes } from './middleware/registrated-routes.js'
+import errorHandler from './middleware/errors-Handler.js'
+import cookieParser from 'cookie-parser'
 
 const app = express()
 app.use(cors())
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json()) // To parse the incoming requests with JSON payloads
-
+app.use(cookieParser()) // to parse incoming cookies
 //extract env variables
 const { PORT, NODE_ENV, MONGODB_URI, MONGO_LOCAL } = process.env
 const port = PORT
@@ -34,18 +36,21 @@ mongoose
 
 app.use(logRequest)
 app.use(express.urlencoded({ extended: false }))
-app.use(express.static(path.join(__dirname, 'public'))) // Serve static assets from public folder
+
+// Serve static assets from public folder
+//app.use(express.static(path.join(__dirname, 'public')))
 
 // Routes
 registratedRoutes.push(todoRouter)
 registratedRoutes.push(authRouter)
-
+// Register my roots for documentation
 app.use('/api', ...registratedRoutes)
 
 // Handle root URL to serve index.html
-app.get('/', (req, res) => {
+
+/* app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'))
-})
+}) */
 
 app.use('*', extractRoutes, (req, res) => {
     const errorMessage = 'Page not found. Available routes on https://todo-list-demo.onrender.com/api/ are :'
@@ -57,6 +62,9 @@ app.use('*', extractRoutes, (req, res) => {
     res.status(404).json(responseBody)
 })
 
+//Error centralized middleware :
+app.use(errorHandler)
 app.listen(port, () => {
     console.log(`Server listening on port ${port} - in ${NODE_ENV} environnement`)
+    console.log(`static front served from http://localhost:${port}`)
 })
