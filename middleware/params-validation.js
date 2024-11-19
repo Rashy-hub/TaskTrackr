@@ -1,13 +1,12 @@
 import asyncHandler from 'express-async-handler'
 import { InvalidFieldErrorResponse } from '../utils/error-schemas.js'
 
-const bodyValidation = (yupValidator, errorCode = 422) => {
+const paramsValidation = (yupValidator, errorCode = 422) => {
     return asyncHandler(async (req, res, next) => {
-        // Unfortunately yup causes async and sync errors both, that's why I use try-catch even with asyncHandler
         try {
-            const validatedData = await yupValidator.noUnknown().validate(req.body, { abortEarly: false })
+            const validatedParams = await yupValidator.noUnknown().validate(req.params, { abortEarly: false })
 
-            req.validatedData = validatedData
+            req.validatedParams = validatedParams
             next()
         } catch (err) {
             const errors = err.inner.reduce((acc, error) => {
@@ -20,9 +19,9 @@ const bodyValidation = (yupValidator, errorCode = 422) => {
                 return acc
             }, {})
 
-            next(new InvalidFieldErrorResponse('Data invalid', errors))
+            next(new InvalidFieldErrorResponse('Parameters invalid', errors))
         }
     })
 }
 
-export default bodyValidation
+export default paramsValidation
