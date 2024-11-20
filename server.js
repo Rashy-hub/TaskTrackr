@@ -12,7 +12,12 @@ import errorHandler from './middleware/errors-Handler.js'
 import cookieParser from 'cookie-parser'
 console.clear()
 const app = express()
-app.use(cors())
+const corsOptions = {
+    origin: 'http://localhost:3000', // front end app when in dev mode
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+}
+app.use(cors(corsOptions))
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json()) // To parse the incoming requests with JSON payloads
 app.use(cookieParser()) // to parse incoming cookies
@@ -65,6 +70,5 @@ app.use('*', extractRoutes, (req, res) => {
 //Error centralized middleware :
 app.use(errorHandler)
 app.listen(port, () => {
-    console.log(`Server listening on port ${port} - in ${NODE_ENV} environnement`)
-    console.log(`static front served from http://localhost:${port}`)
+    console.log(`Server listening http://localhost:${port} - in ${NODE_ENV} environnement`)
 })
