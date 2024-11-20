@@ -89,3 +89,20 @@ export const refreshUser = asyncHandler(async (req, res) => {
 
     res.status(response.status).json(response)
 })
+
+export const logoutUser = asyncHandler(async (req, res, next) => {
+    // Clear the token cookie
+    res.clearCookie('token', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production', // Secure in production
+        sameSite: 'strict',
+    })
+
+    // Create a standardized response
+    const response = {
+        status: 200,
+        message: 'User has been logged out successfully',
+    }
+
+    res.status(response.status).json(response)
+})
