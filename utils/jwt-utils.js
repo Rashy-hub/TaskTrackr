@@ -20,7 +20,7 @@ const generateJWT = async (userId) => {
     }
 
     try {
-        const token = await jwt.sign({ id: userId }, secret, options)
+        const token = jwt.sign({ id: userId }, secret, options)
         return { token, expire: new Date(Date.now() + 3600 * 1000).toISOString() } // 1-hour expiration
     } catch (error) {
         throw new InternalServerErrorResponse(`Token generation error: ${error.message}`)
@@ -35,7 +35,8 @@ const decodeJWT = async (token) => {
 
     try {
         // Decode and verify the JWT
-        const data = await jwt.verify(token, secret)
+
+        const data = jwt.verify(token, secret)
         return { id: data.id }
     } catch (error) {
         if (error.name === 'TokenExpiredError') {
