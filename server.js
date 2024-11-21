@@ -20,9 +20,9 @@ const corsOptions = {
 app.use(cors(corsOptions))
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json()) // To parse the incoming requests with JSON payloads
-app.use(cookieParser()) // to parse incoming cookies
+
 //extract env variables
-const { PORT, NODE_ENV, MONGODB_URI, MONGO_LOCAL } = process.env
+const { PORT, NODE_ENV, MONGODB_URI, MONGO_LOCAL, COOKIE_SECRET } = process.env
 const port = PORT
 let mongoURI = null
 // Connect to MongoDB (replace with your connection string)
@@ -38,7 +38,7 @@ mongoose
     .catch((err) => console.error('Error connecting to MongoDB:', err))
 
 // Middleware
-
+app.use(cookieParser(COOKIE_SECRET)) // to parse incoming cookies
 app.use(logRequest)
 app.use(express.urlencoded({ extended: false }))
 

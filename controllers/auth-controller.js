@@ -65,9 +65,9 @@ export const loginUser = asyncHandler(async (req, res, next) => {
     res.status(response.status).json(response)
 })
 
-export const refreshUser = asyncHandler(async (req, res) => {
+export const refreshUser = asyncHandler(async (req, res, next) => {
+    //const userId = req.user.id // The ID is now accessible via req.user from the token
     const { email } = req.validatedData
-
     const user = await UserModel.findOne({ email })
     if (!user) {
         next(new NotFoundErrorResponse('User not found', [{ field: 'email' }]))
@@ -83,22 +83,26 @@ export const refreshUser = asyncHandler(async (req, res) => {
         sameSite: 'strict',
     })
 
-    const response = new AuthRefreshResponse('Token has been refreshed successfully', {
-        token: token.token,
+    const response = new AuthRefreshResponse('Token has been validated and refreshed successfully', {
+        isAuthenticate: true,
     })
 
     res.status(response.status).json(response)
 })
 
 export const logoutUser = asyncHandler(async (req, res, next) => {
-    // Clear the token cookie
+    // Optionnel : tentative de suppression classique
+
     res.clearCookie('token', {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production', // Secure in production
+        secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
-    })
 
-    // Create a standardized response
+        path: '/', // Doit correspondre à la configuration initiale
+    })
+    
+
+    // Réponse standardisée
     const response = {
         status: 200,
         message: 'User has been logged out successfully',
