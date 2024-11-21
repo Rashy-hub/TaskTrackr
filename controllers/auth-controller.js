@@ -19,13 +19,8 @@ export const registerUser = asyncHandler(async (req, res) => {
 
     const token = await generateJWT(savedUser._id)
 
-    // Set token in the cookie
-    res.cookie('token', token.token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production', // Set to true in production (HTTPS)
-        maxAge: 3600000, // 1 hour in milliseconds
-        sameSite: 'strict', // Protect against CSRF attacks
-    })
+    // Stocker le token dans la session
+    req.session.token = token.token
 
     const response = new AuthRegistrationResponse('User has been registered successfully', {
         user: savedUser,
@@ -46,16 +41,11 @@ export const loginUser = asyncHandler(async (req, res, next) => {
     if (!isValid) {
         next(new UnauthorizedErrorResponse('Invalid credentials, password not matching', [{ field: 'password' }]))
     }
-    UnauthorizedErrorResponse
+
     const token = await generateJWT(user._id)
 
-    // Set token in the cookie
-    res.cookie('token', token.token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production', // Set to true in production (HTTPS)
-        maxAge: 3600000, // 1 hour in milliseconds
-        sameSite: 'strict',
-    })
+    // Stocker le token dans la session
+    req.session.token = token.token
 
     const response = new AuthLoginResponse('User has been logged in successfully', {
         user: user.username,
@@ -66,22 +56,17 @@ export const loginUser = asyncHandler(async (req, res, next) => {
 })
 
 export const refreshUser = asyncHandler(async (req, res, next) => {
-    //const userId = req.user.id // The ID is now accessible via req.user from the token
-    const { email } = req.validatedData
-    const user = await UserModel.findOne({ email })
+    const userId = req.user.id
+
+    const user = await UserModel.findOne(userId)
     if (!user) {
-        next(new NotFoundErrorResponse('User not found', [{ field: 'email' }]))
+        next(new NotFoundErrorResponse('User not found'))
     }
 
     const token = await generateJWT(user._id)
 
-    // Set the new token in the cookie
-    res.cookie('token', token.token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: 3600000, // 1 hour in milliseconds
-        sameSite: 'strict',
-    })
+    // Mettre à jour le token dans la session
+    req.session.token = token.token
 
     const response = new AuthRefreshResponse('Token has been validated and refreshed successfully', {
         isAuthenticate: true,
@@ -90,18 +75,11 @@ export const refreshUser = asyncHandler(async (req, res, next) => {
     res.status(response.status).json(response)
 })
 
-export const logoutUser = asyncHandler(async (req, res, next) => {
-    // Optionnel : tentative de suppression classique
+export const logoutUser = asyncHandler(async (req, res) => {
+    // Détruire les données de la session
+    req.session = null
 
-    res.clearCookie('token', {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-
-        path: '/', // Doit correspondre à la configuration initiale
-    })
-    
-
+    console.log('LOGOUT DETECTED')
     // Réponse standardisée
     const response = {
         status: 200,

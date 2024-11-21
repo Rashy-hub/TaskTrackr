@@ -2,7 +2,6 @@ import dotenvFlow from 'dotenv-flow'
 dotenvFlow.config()
 import express from 'express'
 import cors from 'cors'
-import path from 'path'
 import mongoose from 'mongoose'
 import todoRouter from './routes/todo-route.js'
 import authRouter from './routes/auth-route.js'
@@ -10,6 +9,7 @@ import logRequest from './middleware/request-logger.js'
 import { registratedRoutes, extractRoutes } from './middleware/registrated-routes.js'
 import errorHandler from './middleware/errors-Handler.js'
 import cookieParser from 'cookie-parser'
+import cookieSession from 'cookie-session'
 console.clear()
 const app = express()
 const corsOptions = {
@@ -38,7 +38,18 @@ mongoose
     .catch((err) => console.error('Error connecting to MongoDB:', err))
 
 // Middleware
-app.use(cookieParser(COOKIE_SECRET)) // to parse incoming cookies
+app.use(cookieParser()) // To parse incoming cookies
+
+// cookie-session config
+app.use(
+    cookieSession({
+        name: 'session', // Nom du cookie
+        secret: COOKIE_SECRET, // Chaîne secrète pour signer le cookie
+        httpOnly: true, // Rendre les cookies uniquement accessibles via HTTP
+        secure: NODE_ENV === 'production', // Mettre à true si vous utilisez HTTPS
+        maxAge: 1000 * 60 * 60 * 24, // Expiration du cookie en millisecondes (ici 24h)
+    })
+)
 app.use(logRequest)
 app.use(express.urlencoded({ extended: false }))
 

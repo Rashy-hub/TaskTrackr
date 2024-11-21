@@ -4,17 +4,21 @@ import { BadRequestErrorResponse, UnauthorizedErrorResponse } from '../utils/err
 import mongoose from 'mongoose'
 
 const authenticateToken = asyncHandler(async (req, res, next) => {
-    const token = req.cookies['token'] // Access token from cookies
+    // Récupérer le token depuis la session
+    const token = req.session?.token // Vérifie si la session et le token existent
     if (!token) {
         next(new UnauthorizedErrorResponse('Access token missing or invalid'))
     }
 
+    // Vérifier le token et décoder l'utilisateur
     const verifiedUserId = await decodeJWT(token)
-    req.user = verifiedUserId // Add user info to the request object
-    // validate the user id format => must be a valid mongoose objectID
+    req.user = verifiedUserId // Ajouter les infos de l'utilisateur dans l'objet req
+
+    // Valider le format de l'ID utilisateur (doit être un ObjectId valide de MongoDB)
     if (!mongoose.Types.ObjectId.isValid(req.user.id)) {
         return next(new BadRequestErrorResponse('Invalid user ID'))
     }
+
     next()
 })
 
