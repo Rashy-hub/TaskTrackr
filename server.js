@@ -12,18 +12,22 @@ import cookieParser from 'cookie-parser'
 import cookieSession from 'cookie-session'
 console.clear()
 const app = express()
+
+app.use(express.urlencoded({ extended: true }))
+app.use(express.json()) // To parse the incoming requests with JSON payloads
+
+// Define the port
+const port = PORT || 3000
+
+const origin_url = NODE_ENV === 'production' ? ORIGIN_URL : 'http://localhost:3000' // Development origin
+
+// CORS options
 const corsOptions = {
-    origin: 'http://localhost:3000', // front end app when in dev mode
+    origin: origin_url,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
 }
 app.use(cors(corsOptions))
-app.use(express.urlencoded({ extended: true }))
-app.use(express.json()) // To parse the incoming requests with JSON payloads
-
-//extract env variables
-const { PORT, NODE_ENV, MONGODB_URI, MONGO_LOCAL, COOKIE_SECRET } = process.env
-const port = PORT
 let mongoURI = null
 // Connect to MongoDB (replace with your connection string)
 if (NODE_ENV === 'development') {
