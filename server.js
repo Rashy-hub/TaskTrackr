@@ -16,14 +16,14 @@ const app = express()
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json()) // To parse the incoming requests with JSON payloads
 
-// Define the port
-const port = PORT || 3000
+//extract env variables
+const { PORT, NODE_ENV, MONGODB_URI, MONGO_LOCAL, COOKIE_SECRET, ORIGIN_URL } = process.env
+const port = PORT
 
-const origin_url = NODE_ENV === 'production' ? ORIGIN_URL : 'http://localhost:3000' // Development origin
+const origin_url = NODE_ENV === 'production' ? ORIGIN_URL : `http://localhost:${PORT}`
 
-// CORS options
 const corsOptions = {
-    origin: origin_url,
+    origin: origin_url, // front end app when in dev mode
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
 }
