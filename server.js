@@ -52,6 +52,7 @@ app.use(
         httpOnly: true, // Rendre les cookies uniquement accessibles via HTTP
         secure: NODE_ENV === 'production', // Mettre à true si vous utilisez HTTPS
         maxAge: 1000 * 60 * 60 * 24, // Expiration du cookie en millisecondes (ici 24h)
+        sameSite: 'none',
     })
 )
 app.use(logRequest)
