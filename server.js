@@ -47,12 +47,12 @@ app.use(cookieParser()) // To parse incoming cookies
 // cookie-session config
 app.use(
     cookieSession({
-        domain: '.yagoubi-rachid.me',
-        name: 'session', // Nom du cookie
-        secret: COOKIE_SECRET, // Chaîne secrète pour signer le cookie
-        httpOnly: true, // Rendre les cookies uniquement accessibles via HTTP
-        secure: NODE_ENV === 'production', // Mettre à true si vous utilisez HTTPS
-        maxAge: 1000 * 60 * 60 * 24, // Expiration du cookie en millisecondes (ici 24h)
+        domain: NODE_ENV === 'production' ? '.yagoubi-rachid.me' : undefined,
+        name: 'session',
+        secret: COOKIE_SECRET,
+        httpOnly: true,
+        secure: NODE_ENV === 'production', // Désactiver en local si nécessaire
+        maxAge: 1000 * 60 * 60 * 24, // 24 heures
         sameSite: 'none',
     })
 )
