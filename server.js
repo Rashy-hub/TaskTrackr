@@ -47,6 +47,7 @@ app.use(cookieParser()) // To parse incoming cookies
 // cookie-session config
 app.use(
     cookieSession({
+        domain: '.yagoubi-rachid.me',
         name: 'session', // Nom du cookie
         secret: COOKIE_SECRET, // Chaîne secrète pour signer le cookie
         httpOnly: true, // Rendre les cookies uniquement accessibles via HTTP
