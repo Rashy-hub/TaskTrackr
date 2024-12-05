@@ -9,12 +9,19 @@ import logRequest from './middleware/request-logger.js'
 import { registratedRoutes, extractRoutes } from './middleware/registrated-routes.js'
 import errorHandler from './middleware/errors-Handler.js'
 import cookieSession from 'cookie-session'
+import passport from 'passport'
+import configurePassport from './configs/passeport-config.js'
+
 console.clear()
 console.log(process.env.NODE_ENV)
 const app = express()
 
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json()) // To parse the incoming requests with JSON payloads
+
+// Configure Passport.js
+configurePassport(passport)
+app.use(passport.initialize())
 
 //extract env variables
 const { PORT, NODE_ENV, MONGODB_URI, MONGO_LOCAL, COOKIE_SECRET, ORIGIN_URL } = process.env

@@ -19,14 +19,14 @@ export const registerUser = asyncHandler(async (req, res) => {
 
     const token = await generateJWT(savedUser._id)
 
-    // Stocker le token dans la session
-    req.session.token = token.token
-
     const response = new AuthRegistrationResponse('User has been registered successfully', {
         user: savedUser,
     })
 
-    res.status(response.status).json(response)
+    res.status(response.status).json({
+        ...response,
+        token: token.token, // Renvoi du token
+    })
 })
 
 export const loginUser = asyncHandler(async (req, res, next) => {
@@ -44,35 +44,36 @@ export const loginUser = asyncHandler(async (req, res, next) => {
 
     const token = await generateJWT(user._id)
 
-    // Stocker le token dans la session
-    req.session.token = token.token
-
     const response = new AuthLoginResponse('User has been logged in successfully', {
         user: user.username,
         id: user._id,
     })
 
-    res.status(response.status).json(response)
+    res.status(response.status).json({
+        ...response,
+        token: token.token, // Renvoi du token
+    })
 })
 
 export const refreshUser = asyncHandler(async (req, res, next) => {
+    // Si l'utilisateur est authentifié via JWT, Passport.js va ajouter `req.user` avec les données de l'utilisateur
     const userId = req.user.id
 
-    const user = await UserModel.findOne(userId)
+    const user = await UserModel.findById(userId)
     if (!user) {
         next(new NotFoundErrorResponse('User not found'))
     }
 
     const token = await generateJWT(user._id)
 
-    // Mettre à jour le token dans la session
-    req.session.token = token.token
-
     const response = new AuthRefreshResponse('Token has been validated and refreshed successfully', {
         isAuthenticate: true,
     })
 
-    res.status(response.status).json(response)
+    res.status(response.status).json({
+        ...response,
+        token: token.token, // Renvoi du nouveau token
+    })
 })
 
 export const logoutUser = asyncHandler(async (req, res) => {

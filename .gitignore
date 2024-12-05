@@ -4,3 +4,4 @@ temp
 .env.development
 .env.production
 logs/
+temp_tree.txt
