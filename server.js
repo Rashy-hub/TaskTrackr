@@ -53,7 +53,7 @@ app.use(
         httpOnly: true,
         secure: NODE_ENV === 'production', // Désactiver en local si nécessaire
         maxAge: 1000 * 60 * 60 * 24, // 24 heures
-        sameSite: 'none',
+        sameSite: 'lax',
     })
 )
 app.use(logRequest)
