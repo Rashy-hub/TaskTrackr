@@ -51,7 +51,7 @@ export const loginUser = asyncHandler(async (req, res, next) => {
         user: user.username,
         id: user._id,
     })
-
+    console.log('request session updated : ' + JSON.stringify(req.session))
     res.status(response.status).json(response)
 })
 

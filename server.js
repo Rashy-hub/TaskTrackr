@@ -10,6 +10,7 @@ import { registratedRoutes, extractRoutes } from './middleware/registrated-route
 import errorHandler from './middleware/errors-Handler.js'
 import cookieSession from 'cookie-session'
 console.clear()
+console.log(process.env.NODE_ENV)
 const app = express()
 
 app.use(express.urlencoded({ extended: true }))
@@ -45,7 +46,7 @@ mongoose
 // cookie-session config
 app.use(
     cookieSession({
-        domain: NODE_ENV === 'production' ? '.yagoubi-rachid.me' : undefined,
+        domain: NODE_ENV === 'production' ? '.yagoubi-rachid.me' : 'localhost',
         name: 'session',
         secret: COOKIE_SECRET,
         httpOnly: true,
