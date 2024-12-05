@@ -20,7 +20,7 @@ app.use(express.json()) // To parse the incoming requests with JSON payloads
 const { PORT, NODE_ENV, MONGODB_URI, MONGO_LOCAL, COOKIE_SECRET, ORIGIN_URL } = process.env
 const port = PORT
 
-const origin_url = NODE_ENV === 'production' ? ORIGIN_URL : `http://localhost:${PORT}`
+const origin_url = NODE_ENV === 'production' ? ORIGIN_URL : `http://localhost:3000`
 
 const corsOptions = {
     origin: origin_url, // front end app when in dev mode
@@ -42,7 +42,6 @@ mongoose
     .catch((err) => console.error('Error connecting to MongoDB:', err))
 
 // Middleware
-
 // cookie-session config
 app.use(
     cookieSession({

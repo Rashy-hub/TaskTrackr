@@ -16,12 +16,12 @@ const generateJWT = async (userId) => {
         algorithm: 'HS512',
         audience: process.env.JWT_AUDIENCE || 'default_audience',
         issuer: process.env.JWT_ISSUER || 'default_issuer',
-        expiresIn: '1h', // Set the expiration to 1 hour; adjust as needed
+        expiresIn: '1h', // Expiration définie ici
     }
 
     try {
         const token = jwt.sign({ id: userId }, secret, options)
-        return { token, expire: new Date(Date.now() + 3600 * 1000).toISOString() } // 1-hour expiration
+        return { token } // L'expiration est incluse automatiquement dans le JWT
     } catch (error) {
         throw new InternalServerErrorResponse(`Token generation error: ${error.message}`)
     }
