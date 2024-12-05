@@ -8,7 +8,6 @@ import authRouter from './routes/auth-route.js'
 import logRequest from './middleware/request-logger.js'
 import { registratedRoutes, extractRoutes } from './middleware/registrated-routes.js'
 import errorHandler from './middleware/errors-Handler.js'
-import cookieParser from 'cookie-parser'
 import cookieSession from 'cookie-session'
 console.clear()
 const app = express()
@@ -42,7 +41,6 @@ mongoose
     .catch((err) => console.error('Error connecting to MongoDB:', err))
 
 // Middleware
-app.use(cookieParser()) // To parse incoming cookies
 
 // cookie-session config
 app.use(
@@ -53,7 +51,7 @@ app.use(
         httpOnly: true,
         secure: NODE_ENV === 'production', // Désactiver en local si nécessaire
         maxAge: 1000 * 60 * 60 * 24, // 24 heures
-        sameSite: 'lax',
+        sameSite: 'none',
     })
 )
 app.use(logRequest)
