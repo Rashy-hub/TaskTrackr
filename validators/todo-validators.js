@@ -18,6 +18,12 @@ const todoBodyValidator = yup.object().shape({
         .nullable()
         .default('IN PROGRESS')
         .required('Todo `status` field is required'),
+    priority: yup
+        .string()
+        .oneOf(['CRUCIAL', 'IMPORTANT', 'NORMAL', 'LOW'], 'priority must be one of the following: CRUCIAL, IMPORTANT,NORMAL, LOW')
+        .nullable()
+        .default('NORMAL')
+        .required('Todo `priority` field is required'),
 })
 
 export { todoIdValidator, todoBodyValidator }

@@ -33,9 +33,9 @@ export const getTodo = asyncHandler(async (req, res) => {
 
 // Add a single todo by id
 export const addTodo = asyncHandler(async (req, res) => {
-    const { text, status } = req.body
+    const { text, status, priority } = req.body
 
-    const todo = new Todo({ text, status, user: req.user.id })
+    const todo = new Todo({ text, status, priority, user: req.user.id })
     await todo.save()
 
     const response = new SuccessResponse('Todo added successfully', { todo })
@@ -45,7 +45,7 @@ export const addTodo = asyncHandler(async (req, res) => {
 // Update a todo by id
 export const updateTodo = asyncHandler(async (req, res) => {
     const { id } = req.validatedParams
-    const { text, status } = req.body
+    const { text, status, priority } = req.body
 
     console.log('HERE HERE HERE HERE ' + text + ' ' + status)
 
@@ -64,6 +64,11 @@ export const updateTodo = asyncHandler(async (req, res) => {
     // Update the status if it is provided
     if (status !== undefined) {
         todo.status = status
+    }
+
+    // Update the status if it is provided
+    if (priority !== undefined) {
+        todo.priority = priority
     }
 
     await todo.save()

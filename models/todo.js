@@ -19,6 +19,12 @@ const TodoSchema = new mongoose.Schema(
             ref: 'users',
             required: true,
         },
+        priority: {
+            type: String,
+            enum: ['CRUCIAL', 'IMPORTANT', 'NORMAL', 'LOW'],
+            default: 'NORMAL',
+            required: true,
+        },
     },
     {
         timestamps: true,
