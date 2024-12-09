@@ -8,7 +8,8 @@ import { BadRequestErrorResponse, ForbiddenErrorResponse, NotFoundErrorResponse 
 export const getTodos = asyncHandler(async (req, res) => {
     const userId = req.user.id
 
-    const todos = await Todo.find({ user: userId })
+    // Fetch todos excluding archived ones
+    const todos = await Todo.find({ user: userId, isArchived: { $ne: true } })
     const response = new SuccessResponse('Todos retrieved successfully', { todos })
 
     res.status(response.status).json(response)
@@ -45,9 +46,7 @@ export const addTodo = asyncHandler(async (req, res) => {
 // Update a todo by id
 export const updateTodo = asyncHandler(async (req, res) => {
     const { id } = req.validatedParams
-    const { text, status, priority } = req.body
-
-    console.log('HERE HERE HERE HERE ' + text + ' ' + status)
+    const { text, status, priority, isArchived } = req.body
 
     const todo = await Todo.findById(id)
     if (!todo) {
@@ -69,6 +68,9 @@ export const updateTodo = asyncHandler(async (req, res) => {
     // Update the status if it is provided
     if (priority !== undefined) {
         todo.priority = priority
+    }
+    if (isArchived !== undefined) {
+        todo.isArchived = isArchived
     }
 
     await todo.save()

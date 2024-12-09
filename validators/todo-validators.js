@@ -24,6 +24,7 @@ const todoBodyValidator = yup.object().shape({
         .nullable()
         .default('NORMAL')
         .required('Todo `priority` field is required'),
+    isArchived: yup.boolean().nullable().default(false),
 })
 
 export { todoIdValidator, todoBodyValidator }

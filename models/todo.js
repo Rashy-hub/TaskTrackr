@@ -25,6 +25,10 @@ const TodoSchema = new mongoose.Schema(
             default: 'NORMAL',
             required: true,
         },
+        isArchived: {
+            type: Boolean,
+            default: false,
+        },
     },
     {
         timestamps: true,
