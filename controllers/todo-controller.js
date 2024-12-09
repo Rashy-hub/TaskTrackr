@@ -7,9 +7,14 @@ import { BadRequestErrorResponse, ForbiddenErrorResponse, NotFoundErrorResponse 
 // Get all todos
 export const getTodos = asyncHandler(async (req, res) => {
     const userId = req.user.id
+    const { id: topicId } = req.validatedParams
 
-    // Fetch todos excluding archived ones
-    const todos = await Todo.find({ user: userId, isArchived: { $ne: true } })
+    const todos = await Todo.find({
+        user: userId,
+        isArchived: { $ne: true },
+        topic: topicId,
+    })
+
     const response = new SuccessResponse('Todos retrieved successfully', { todos })
 
     res.status(response.status).json(response)
@@ -32,11 +37,11 @@ export const getTodo = asyncHandler(async (req, res) => {
     res.status(response.status).json(response)
 })
 
-// Add a single todo by id
+// Add a single todo by id , every time i add a todo it is related to topicId
 export const addTodo = asyncHandler(async (req, res) => {
-    const { text, status, priority } = req.body
+    const { text, status, priority, topicId } = req.body
+    const todo = new Todo({ text, status, priority, user: req.user.id, topic: topicId })
 
-    const todo = new Todo({ text, status, priority, user: req.user.id })
     await todo.save()
 
     const response = new SuccessResponse('Todo added successfully', { todo })
@@ -60,12 +65,11 @@ export const updateTodo = asyncHandler(async (req, res) => {
     if (text !== undefined) {
         todo.text = text
     }
-    // Update the status if it is provided
+
     if (status !== undefined) {
         todo.status = status
     }
 
-    // Update the status if it is provided
     if (priority !== undefined) {
         todo.priority = priority
     }

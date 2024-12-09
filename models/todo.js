@@ -29,6 +29,11 @@ const TodoSchema = new mongoose.Schema(
             type: Boolean,
             default: false,
         },
+        topic: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'topics', // Reference to the User model
+            required: [true, 'Topic is required'],
+        },
     },
     {
         timestamps: true,

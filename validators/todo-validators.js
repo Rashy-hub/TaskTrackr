@@ -25,6 +25,9 @@ const todoBodyValidator = yup.object().shape({
         .default('NORMAL')
         .required('Todo `priority` field is required'),
     isArchived: yup.boolean().nullable().default(false),
+    topicId: yup.string().required('Topic Id is required'),
+    //_Interpersonal, Learning, Review, Chores, Sports, Work, Social Duties_
+    //topic: yup.string().oneOf(['INTERPERSONAL', 'LEARNING', 'REVIEW', 'CHORES', 'SPORTS', 'WORK', 'SOCIAL DUTIES']),
 })
 
 export { todoIdValidator, todoBodyValidator }

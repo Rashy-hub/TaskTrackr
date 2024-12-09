@@ -11,6 +11,7 @@ import errorHandler from './middleware/errors-Handler.js'
 import cookieSession from 'cookie-session'
 import passport from 'passport'
 import configurePassport from './configs/passeport-config.js'
+import topicRouter from './routes/topic-route.js'
 
 console.clear()
 console.log(process.env.NODE_ENV)
@@ -70,6 +71,7 @@ app.use(express.urlencoded({ extended: false }))
 // Routes
 registratedRoutes.push(todoRouter)
 registratedRoutes.push(authRouter)
+registratedRoutes.push(topicRouter)
 // Register my roots for documentation
 app.use('/api', ...registratedRoutes)
 

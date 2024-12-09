@@ -23,7 +23,7 @@ const TopicSchema = new mongoose.Schema(
         category: {
             type: String,
             required: [true, 'Category is required'],
-            enum: ['Interpersonal', 'Learning', 'Review', 'Chores', 'Well Being', 'Work', 'Social Duties'],
+            enum: ['INTERPERSONAL', 'LEARNING', 'REVIEW', 'CHORES', 'SPORTS', 'WORK', 'SOCIAL DUTIES'],
         },
         todos: [
             {
@@ -31,14 +31,7 @@ const TopicSchema = new mongoose.Schema(
                 ref: 'todos', // Reference to the Todo model
             },
         ],
-        startDate: {
-            type: Date,
-            required: [true, 'Start date is required'],
-        },
-        dueDate: {
-            type: Date,
-            required: [true, 'Due date is required'],
-        },
+
         status: {
             type: String,
             required: true,

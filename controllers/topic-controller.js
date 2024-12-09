@@ -38,6 +38,7 @@ export const addTopic = asyncHandler(async (req, res) => {
         title,
         description,
         category,
+        status: 'ACTIVE',
         userId: req.user.id,
     })
 
