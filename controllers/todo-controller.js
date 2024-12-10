@@ -51,7 +51,7 @@ export const addTodo = asyncHandler(async (req, res) => {
 // Update a todo by id
 export const updateTodo = asyncHandler(async (req, res) => {
     const { id } = req.validatedParams
-    const { text, status, priority, isArchived } = req.body
+    const { text, status, priority, isArchived, topicId } = req.body
 
     const todo = await Todo.findById(id)
     if (!todo) {
